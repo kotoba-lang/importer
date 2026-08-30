@@ -93,6 +93,13 @@
     :expect "the-same-message-from-both-providers-is-one-record"
     :why "one message in two systems is stored twice, doubling every later count"}
 
+   {:id :unknown-window-overrules-a-measured-run
+    :file "src/importer/coverage.cljc"
+    :from "      (not= :synced outcome) :stale\n      (= true (cur/expired? cursor now)) :stale"
+    :to   "      (nil? (cur/expired? cursor now)) :stale\n      (not= :synced outcome) :stale"
+    :expect "a-provider-with-no-published-window-is-still-covered"
+    :why "every Graph, Drive and Calendar stream reads as uncertain forever, so the caveat stops meaning anything"}
+
    {:id :coverage-defaults-to-covered
     :file "src/importer/coverage.cljc"
     :from "    :never-imported))"
