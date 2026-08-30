@@ -20,12 +20,28 @@
   (:require [importer.cursor :as cur]))
 
 (def states
-  "  :covered        read, current, and following a delta
+  "  :covered        read, and the last run reached the provider and finished
   :backfilling    being read now; older records may not be in yet
-  :stale          was read, and the cursor has lapsed or last failed
+  :stale          the last run did not sync, or the cursor is known to have lapsed
   :never-imported no cursor has ever advanced for this stream
-  :unknown        cannot tell -- the stream declares :unknown retention"
-  #{:covered :backfilling :stale :never-imported :unknown})
+
+  **There is deliberately no `:unknown` here, and there was, for a day.**
+
+  `state` used to answer `:unknown` whenever `cursor/expired?` could not
+  decide -- which is whenever the stream declares `:unknown` retention. That
+  reads as caution and is the opposite. Microsoft Graph does not publish a
+  deltaLink expiry, and neither does Drive or Calendar, so **every stream on
+  those providers would have been permanently `:unknown`**, every answer
+  permanently incomplete, and a reader who is told `incomplete` about
+  everything learns to stop reading it. A caveat that fires always carries no
+  information.
+
+  The two questions had been collapsed. `state` answers *can I trust this
+  empty result*, which is settled by what the last run actually did.
+  *Will the next run still work* is a different question, and it is carried
+  separately as `:importer.coverage/expiry-unknown?` on the row -- present
+  when the provider publishes no window, absent when it does."
+  #{:covered :backfilling :stale :never-imported})
 
 (def coverage {})
 
@@ -41,20 +57,32 @@
   "The three-plus-two valued verdict for one stream key."
   [cov stream-key now]
   (if-let [{:keys [importer.coverage/cursor importer.coverage/outcome]} (get cov stream-key)]
-    (let [expired (cur/expired? cursor now)]
-      (cond
-        (not (cur/started? cursor)) :never-imported
-        (= true expired) :stale
-        (nil? expired) :unknown
-        (not= :synced outcome) :stale
-        (= :backfill (cur/phase cursor)) :backfilling
-        :else :covered))
+    (cond
+      (not (cur/started? cursor)) :never-imported
+      ;; What the last run did comes first: it is measured. A window we cannot
+      ;; compute must not overrule a success we watched happen.
+      (not= :synced outcome) :stale
+      (= true (cur/expired? cursor now)) :stale
+      (= :backfill (cur/phase cursor)) :backfilling
+      :else :covered)
     :never-imported))
 
 (defn through
   "The watermark this stream is read through, or nil."
   [cov stream-key]
   (some-> (get cov stream-key) :importer.coverage/cursor cur/watermark))
+
+(defn expiry-unknown?
+  "The provider publishes no validity window for this cursor, so nothing here
+  can say whether the next run will still be able to resume.
+
+  Separate from `state` on purpose -- see the note there. A caller that wants
+  to resync preemptively reads this; a caller deciding whether an empty result
+  means `no` reads `state`."
+  [cov stream-key now]
+  (boolean
+   (when-let [c (:importer.coverage/cursor (get cov stream-key))]
+     (nil? (cur/expired? c now)))))
 
 (defn answer
   "The only way to build a corpus result.
@@ -65,8 +93,10 @@
   [rows cov stream-keys now]
   (let [per (into {}
                   (map (fn [k]
-                         [k {:importer.coverage/state (state cov k now)
-                             :importer.coverage/through (through cov k)}]))
+                         [k (cond-> {:importer.coverage/state (state cov k now)
+                                     :importer.coverage/through (through cov k)}
+                              (expiry-unknown? cov k now)
+                              (assoc :importer.coverage/expiry-unknown? true))]))
                   stream-keys)]
     {:importer/rows (vec rows)
      :importer/coverage per

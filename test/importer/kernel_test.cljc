@@ -238,6 +238,34 @@
     (is (not (cov/empty-and-incomplete? a))
         "here, and only here, an empty list is an answer")))
 
+(deftest a-provider-with-no-published-window-is-still-covered
+  (testing "Graph, Drive and Calendar publish no cursor expiry. If `state` let
+            that overrule a run it watched succeed, every stream on those
+            providers would be permanently uncertain, every answer permanently
+            incomplete, and a reader told 'incomplete' about everything would
+            stop reading it."
+    (let [unknown-src (-> (m/source "com.example.u" "U" {:governance gov})
+                          (m/add-stream :mail {:cursor-style :none
+                                               :history-retention :unknown}))
+          c (-> (cur/cursor unknown-src :mail "k")
+                (cur/advance {:outcome :synced :next-token nil :planned 1 :persisted 1 :at 10})
+                :importer.cursor/cursor
+                (cur/promote nil 10) :importer.cursor/cursor)
+          k (cur/stream-key c)
+          cv (cov/record cov/coverage c :synced 10)
+          a (cov/answer [] cv [k] 999999)]
+      (is (= :covered (cov/state cv k 999999)))
+      (is (cov/complete? a))
+      (testing "and the thing we genuinely cannot answer is carried separately"
+        (is (true? (cov/expiry-unknown? cv k 999999)))
+        (is (true? (get-in a [:importer/coverage k :importer.coverage/expiry-unknown?])))))))
+
+(deftest a-published-window-does-not-set-the-caveat
+  (let [c (:importer.cursor/cursor (cur/advance c0 (good-report 1)))
+        cv (cov/record cov/coverage c :synced 1000)]
+    (is (false? (cov/expiry-unknown? cv sk 1000))
+        "the flag means 'the provider publishes none', not 'we did not look'")))
+
 (deftest coverage-tracks-backfilling-stale-and-unknown
   (let [mid (:importer.cursor/cursor (cur/advance c0 (good-report 4)))
         week (* 7 24 60 60 1000)]
@@ -245,7 +273,9 @@
     (is (= :stale (cov/state (cov/record cov/coverage mid :failed 1000) sk 1000))
         "a stream whose last run failed is not current")
     (is (= :stale (cov/state (cov/record cov/coverage mid :synced 1000) sk (+ 1000 week 1)))
-        "a lapsed cursor is not current either")))
+        "a lapsed cursor is not current either")
+    (is (not (contains? cov/states :unknown))
+        "removed on purpose -- see the note on `states`")))
 
 ;; --- normalize -------------------------------------------------------------
 
