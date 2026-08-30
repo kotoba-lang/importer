@@ -1,0 +1,19 @@
+{:paths ["src"]
+ ;; The connector kernel is the only dependency, and only `importer.connector`
+ ;; uses it. An importer is a connector plus a cursor plus a sink, so the
+ ;; descriptor model, the per-tool scope arithmetic and the invoke path are
+ ;; inherited rather than re-spelled. Re-deriving them here is how one contract
+ ;; acquires two spellings (ADR-2608097000 made the same call about
+ ;; org-anthropic-mcp).
+ :deps {io.github.kotoba-lang/connector
+        {:git/url "https://github.com/kotoba-lang/connector"
+         :git/sha "7182c84f68a61d91b2d783331a118022c1ab51de"}}
+ :aliases
+ {:test {:extra-paths ["test"]
+         :extra-deps {io.github.cognitect-labs/test-runner
+                      {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
+         :main-opts ["-m" "cognitect.test-runner"]
+         :exec-fn cognitect.test-runner.api/test}
+  :lint {:replace-deps {clj-kondo/clj-kondo {:mvn/version "2024.11.14"}}
+         :main-opts ["-m" "clj-kondo.main" "--lint" "src" "test"
+                     "--fail-level" "error"]}}}

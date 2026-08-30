@@ -1,0 +1,17 @@
+#!/usr/bin/env nbb
+;; Regenerate connector.edn from the descriptor.
+;;   nbb --classpath "src:../connector/src" emit-connector-edn.cljs
+;; connector_test asserts the committed file still matches, so a descriptor
+;; change that skips this step fails the suite rather than drifting quietly.
+(require '[clojure.pprint :as pp]
+         '[connector.declare :as decl]
+         '[importer.connector :as c])
+
+(let [fs (js/require "fs")
+      edn (with-out-str
+            (pp/pprint (decl/declaration (c/provider)
+                                         {:namespace "importer.connector"
+                                          :var "provider"
+                                          :authority "90-docs/adr/2608301500-workspace-importer-plane.edn"})))]
+  (.writeFileSync fs "connector.edn" edn)
+  (println "wrote" (count edn) "bytes to connector.edn"))
