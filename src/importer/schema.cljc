@@ -5,8 +5,11 @@
   agree about what a message is. If each importer kept its own shape, the join
   that motivates having a corpus at all -- `what has this customer said to us`,
   across a mailbox on each side -- would be two queries and a merge in every
-  caller, which is the state ADR-260726 warns about in the ref plane and the
-  same mistake one level up.
+  caller. That cost is real and it is the reason for one shape here; it is
+  not that the join becomes impossible. Root ADR-2809040800 supersedes
+  ADR-260726's \"exactly one ref\": reach follows composition, so the failure
+  is an uncomposed split, not a split as such. Paying for the composition once
+  here beats paying for it in every caller.
 
   DataScript-style, not Datomic-native vectors, so both the JVM store and the
   nbb query surface load the same map. `kotoba-lang/mail-archive` established
