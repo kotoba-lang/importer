@@ -5,7 +5,12 @@
  ;; inherited rather than re-spelled. Re-deriving them here is how one contract
  ;; acquires two spellings (ADR-2608097000 made the same call about
  ;; org-anthropic-mcp).
- :deps {io.github.kotoba-lang/connector
+ :deps {
+        ;; kotoba.lang.text, not clojure.string. Pinned as an explicit floor:
+        ;; tools.deps takes the NEWEST sha it is shown, so without a floor here
+        ;; this repo silently rides whatever a sibling happens to name.
+        io.github.kotoba-lang/text {:git/sha "73bdb13ae7a3d004b44bca08be03a3191157a38f"}
+       io.github.kotoba-lang/connector
         {:git/url "https://github.com/kotoba-lang/connector"
          :git/sha "7182c84f68a61d91b2d783331a118022c1ab51de"}}
  :aliases

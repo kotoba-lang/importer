@@ -14,7 +14,7 @@
   same RFC 5322 Message-ID. Keying on the provider id stores it twice, and
   every later count, thread and answer is quietly doubled for anyone in both
   systems -- which, for a company that migrated, is everyone."
-  (:require [clojure.string :as str]))
+  (:require [kotoba.lang.text :as str]))
 
 (def ^:private angled #"^\s*(.*?)\s*<([^>]+)>\s*$")
 
@@ -42,16 +42,16 @@
           addr (or (get inner :address) (get inner "address"))
           nm (or (get inner :name) (get inner "name"))]
       (when-not (str/blank? (str addr))
-        (cond-> {:person/address (str/lower-case (str/trim (str addr)))}
+        (cond-> {:person/address (str/lower (str/trim (str addr)))}
           (not (str/blank? (str nm))) (assoc :person/name (unquote-name nm)))))
 
     :else
     (let [s (str/trim (str x))]
       (when-not (str/blank? s)
         (if-let [[_ nm addr] (re-matches angled s)]
-          (cond-> {:person/address (str/lower-case (str/trim addr))}
+          (cond-> {:person/address (str/lower (str/trim addr))}
             (not (str/blank? nm)) (assoc :person/name (unquote-name nm)))
-          {:person/address (str/lower-case s)})))))
+          {:person/address (str/lower s)})))))
 
 (defn addresses
   "A recipient list, deduplicated by address, order preserved."
