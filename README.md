@@ -81,11 +81,11 @@ tenant's mail and none of them holds `gmail.readonly`.
 ## Confirm it
 
 ```bash
-nbb --classpath "src:test:../connector/src" run-tests.cljs   # 39 tests, 111 assertions
-nbb --classpath "src:../connector/src" mutate.cljs           # 12 mutations, ~3 min
+nbb --classpath "src:test:../connector/src" run-tests.cljk   # 39 tests, 111 assertions
+nbb --classpath "src:../connector/src" mutate.cljk           # 12 mutations, ~3 min
 ```
 
-`mutate.cljs` breaks each invariant in a scratch copy and requires the suite to
+`mutate.cljk` breaks each invariant in a scratch copy and requires the suite to
 go red **and** to name the test that pins it. A green suite proves the code
 passes its tests; it does not prove the tests would notice if the code stopped
 being right.

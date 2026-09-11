@@ -1,5 +1,5 @@
 #!/usr/bin/env nbb
-;; nbb --classpath "src:test:../connector/src" run-tests.cljs
+;; nbb --classpath "src:test:../connector/src" run-tests.cljk
 ;;
 ;; The exit code comes from the :end-run-tests report hook, NOT from the return
 ;; value of `run-tests`. Under nbb that return value is nil, so the obvious
