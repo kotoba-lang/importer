@@ -74,4 +74,4 @@
                                 :var "provider"
                                 :authority "90-docs/adr/2608301500-workspace-importer-plane.edn"})
              committed)
-          "run: nbb --classpath \"src:../connector/src\" emit-connector-edn.cljk"))))
+          "run: kbb --backend sci --classpath \"src:../connector/src\" emit-connector-edn.cljk"))))

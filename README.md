@@ -81,8 +81,8 @@ tenant's mail and none of them holds `gmail.readonly`.
 ## Confirm it
 
 ```bash
-nbb --classpath "src:test:../connector/src" run-tests.cljk   # 39 tests, 111 assertions
-nbb --classpath "src:../connector/src" mutate.cljk           # 12 mutations, ~3 min
+kbb --backend sci --classpath "src:test:../connector/src" run-tests.cljk   # 39 tests, 111 assertions
+kbb --backend sci --classpath "src:../connector/src" mutate.cljk           # 12 mutations, ~3 min
 ```
 
 `mutate.cljk` breaks each invariant in a scratch copy and requires the suite to

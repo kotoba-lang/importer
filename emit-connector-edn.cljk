@@ -1,6 +1,6 @@
-#!/usr/bin/env nbb
+#!/usr/bin/env kbb
 ;; Regenerate connector.edn from the descriptor.
-;;   nbb --classpath "src:../connector/src" emit-connector-edn.cljk
+;;   kbb --backend sci --classpath "src:../connector/src" emit-connector-edn.cljk
 ;; connector_test asserts the committed file still matches, so a descriptor
 ;; change that skips this step fails the suite rather than drifting quietly.
 (require '[clojure.pprint :as pp]
