@@ -1,8 +1,8 @@
-#!/usr/bin/env nbb
+#!/usr/bin/env kbb
 ;; Break each invariant on purpose, in a scratch copy, and require the suite to
 ;; go red AND to name the test that pins it.
 ;;
-;;   nbb --classpath "src:../connector/src" mutate.cljk [--connector <dir>]
+;;   kbb --backend sci --classpath "src:../connector/src" mutate.cljk [--connector <dir>]
 ;;
 ;; A green suite proves the code passes its tests. It does not prove the tests
 ;; would notice if the code stopped being right. This does, and it is the
@@ -115,7 +115,7 @@
 
 (defn- run-suite [dir]
   (let [r (cp/spawnSync "npx"
-                        #js ["--yes" "nbb" "--classpath"
+                        #js ["--yes" "kbb" "--backend" "sci" "--classpath"
                              (str "src:test:" (path/resolve connector-src))
                              "run-tests.cljk"]
                         #js {:cwd dir :encoding "utf8"})]
