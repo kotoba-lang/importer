@@ -6,6 +6,10 @@
  ;; acquires two spellings (ADR-2608097000 made the same call about
  ;; org-anthropic-mcp).
  :deps {
+        ;; kotoba.pprint replaced clojure.pprint here (2026-09-24): the same
+        ;; bytes (cljs.pprint transcribed). An explicit floor; tools.deps takes the
+        ;; NEWEST sha it is shown.
+        io.github.kotoba-lang/pprint {:git/sha "5c9d4aea71d6caac529fffcf361aba0f87ee485e"}
         ;; kotoba.lang.edn replaced clojure.edn here (2026-09-23). An explicit floor:
         ;; tools.deps takes the NEWEST sha it is shown, and kbb resolves git deps
         ;; only from nbb.edn, so every project file this repo has names it.
