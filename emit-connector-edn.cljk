@@ -3,7 +3,7 @@
 ;;   kbb --backend sci --classpath "src:../connector/src" emit-connector-edn.cljk
 ;; connector_test asserts the committed file still matches, so a descriptor
 ;; change that skips this step fails the suite rather than drifting quietly.
-(require '[clojure.pprint :as pp]
+(require '[kotoba.pprint :as pp]
          '[connector.declare :as decl]
          '[importer.connector :as c])
 
