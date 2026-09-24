@@ -1,5 +1,5 @@
 (ns importer.kernel-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [importer.coverage :as cov]
             [importer.cursor :as cur]
             [importer.model :as m]
