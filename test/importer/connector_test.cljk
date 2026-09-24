@@ -1,6 +1,6 @@
 (ns importer.connector-test
   (:require [clojure.edn :as edn]
-            [clojure.test :refer [deftest is testing]]
+            [kotoba.test :refer [deftest is testing]]
             [connector.declare :as decl]
             [connector.model :as cm]
             [connector.provider :as cp]
