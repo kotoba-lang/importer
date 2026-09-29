@@ -20,7 +20,7 @@ throttle budget split N ways — and every bot would report that it was up to
 date, because from inside a cursor there is nothing to see.
 
 So the shape is **one resident writer per tenant, and many readers**, which is
-the same answer CLAUDE.md gives about splitting a kotobase ref under write
+the same answer AGENTS.md gives about splitting a kotobase ref under write
 load: put a single writer in front rather than getting good at losing races.
 
 | | connector | importer |
